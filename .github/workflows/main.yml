@@ -1,38 +1,28 @@
-
-name: Build Android APK
+name: Flutter Build
 
 on:
   push:
     branches:
-      - main
       - master
-  workflow_dispatch:
-
-permissions:
-  contents: read
+  pull_request:
+    branches:
+      - master
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Ambil kode dari GitHub
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Siapkan Flutter
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-          cache: true
 
-      - name: Ambil dependensi
+      - name: Install dependencies
         run: flutter pub get
 
-      - name: Build APK Android
+      - name: Build APK
         run: flutter build apk --release
-
-      - name: Simpan APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: sumber-umbulan-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
