@@ -1,92 +1,361 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(const MyApp());
+void main() {
+  runApp(const Coba());
+}
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-  static const String _title = 'Flutter Stateful Clicker Counter';
-  // This widget is the root of your application.
+// ==================== WARNA ====================
+
+const Color sageBackground = Color(0xFFE8F3E8);
+const Color sageAppBar = Color(0xFFD4E8D4);
+const Color sageDark = Color(0xFF355E3B);
+const Color sageBorder = Color(0xFFB7CDB7);
+
+// ==================== APLIKASI ====================
+
+class Coba extends StatelessWidget {
+  const Coba({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: _title,
+      debugShowCheckedModeBanner: false,
+      title: 'Sumber Umbulan Langlang',
       theme: ThemeData(
-        // useMaterial3: false,
-        primarySwatch: Colors.blue,
+        scaffoldBackgroundColor: sageBackground,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: sageDark,
+        ),
+        useMaterial3: true,
       ),
-      home: const MyHomePage(),
+      home: const HalamanWisata(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-  // This class is the configuration for the state.
+// ==================== HALAMAN WISATA ====================
+
+class HalamanWisata extends StatefulWidget {
+  const HalamanWisata({super.key});
+
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<HalamanWisata> createState() => _HalamanWisataState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _HalamanWisataState extends State<HalamanWisata> {
+  final ScrollController _scrollController = ScrollController();
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+  bool showTitle = false;
+  bool showHistory = false;
+  bool showContact = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _scrollController.addListener(() {
+      final offset = _scrollController.offset;
+
+      final title = offset > 10;
+      final history = offset > 40;
+      final contact = offset > 80;
+
+      if (title != showTitle ||
+          history != showHistory ||
+          contact != showContact) {
+        setState(() {
+          showTitle = title;
+          showHistory = history;
+          showContact = contact;
+        });
+      }
     });
   }
 
   @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: const Text('Flutter Demo Click Counter'),
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  Widget animasi({
+    required bool tampil,
+    required Widget child,
+  }) {
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 350),
+      opacity: tampil ? 1.0 : 0.85,
+      child: AnimatedSlide(
+        duration: const Duration(milliseconds: 350),
+        curve: Curves.easeOut,
+        offset: tampil ? Offset.zero : const Offset(0, 0.025),
+        child: child,
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: sageBackground,
+      appBar: AppBar(
+        title: const Text('Sumber Umbulan Langlang'),
+        backgroundColor: sageAppBar,
+        foregroundColor: sageDark,
+      ),
+      body: SingleChildScrollView(
+        controller: _scrollController,
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // FOTO WISATA
+
+            Image.asset(
+              'assets/sumber umbulan.webp',
+              height: 250,
+              width: double.infinity,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  height: 250,
+                  color: sageAppBar,
+                  alignment: Alignment.center,
+                  child: const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.image_not_supported,
+                        size: 45,
+                        color: sageDark,
+                      ),
+                      SizedBox(height: 8),
+                      Text('Foto wisata tidak ditemukan'),
+                    ],
+                  ),
+                );
+              },
             ),
-            Text(
-              '$_counter',
-              style: const TextStyle(fontSize: 25),
+
+            // JUDUL SEJARAH
+
+            animasi(
+              tampil: showTitle,
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                child: const Text(
+                  'Sejarah Singkat Sumber Umbulan Langlang',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: sageDark,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ),
+
+            // ISI SEJARAH
+
+            animasi(
+              tampil: showHistory,
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+                child: const Text(
+                  'Sumber Umbulan merupakan mata air alami yang berada di '
+                  'kawasan Langlang, Kecamatan Singosari, Kabupaten Malang, '
+                  'Jawa Timur. Tempat ini dikenal karena airnya yang jernih, '
+                  'sejuk, dan lingkungan alamnya yang masih asri.\n\n'
+                  'Sejak dahulu, sumber air ini dimanfaatkan oleh masyarakat '
+                  'sekitar sebagai bagian dari kehidupan sehari-hari. Selain '
+                  'sebagai sumber air, Umbulan juga memiliki nilai budaya '
+                  'dan spiritual bagi masyarakat setempat.\n\n'
+                  'Sumber Umbulan kemudian dikembangkan sebagai tempat wisata '
+                  'oleh masyarakat sekitar. Fasilitas di area sumber dibangun '
+                  'secara bertahap sehingga masyarakat maupun wisatawan dapat '
+                  'menikmati keindahan alamnya.\n\n'
+                  'Kini, Sumber Umbulan menjadi salah satu tempat wisata alam '
+                  'di kawasan Singosari. Kejernihan air, pepohonan yang '
+                  'rindang, serta suasana yang sejuk menjadikannya tempat '
+                  'yang menarik untuk dikunjungi.',
+                  style: TextStyle(
+                    fontSize: 16,
+                    height: 1.5,
+                    color: Color(0xFF333333),
+                  ),
+                  textAlign: TextAlign.justify,
+                ),
+              ),
+            ),
+
+            // KARTU LOKASI DAN KONTAK
+
+            animasi(
+              tampil: showContact,
+              child: Container(
+                margin: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(
+                    color: sageBorder,
+                    width: 1.5,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    if (constraints.maxWidth < 350) {
+                      return const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          LokasiWisata(),
+                          SizedBox(height: 20),
+                          Divider(color: sageBorder),
+                          SizedBox(height: 12),
+                          KontakWisata(),
+                        ],
+                      );
+                    }
+
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Expanded(
+                          child: LokasiWisata(),
+                        ),
+                        Container(
+                          height: 145,
+                          width: 1,
+                          color: sageBorder,
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                          ),
+                        ),
+                        const Expanded(
+                          child: KontakWisata(),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
+    );
+  }
+}
+
+// ==================== BAGIAN LOKASI ====================
+
+class LokasiWisata extends StatelessWidget {
+  const LokasiWisata({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Lokasi',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: sageDark,
+          ),
+        ),
+        const SizedBox(height: 8),
+        const Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              Icons.location_on,
+              size: 22,
+              color: sageDark,
+            ),
+            SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                'Sumber Umbulan\n'
+                'Langlang, Kecamatan Singosari,\n'
+                'Kabupaten Malang,\n'
+                'Jawa Timur',
+                style: TextStyle(
+                  fontSize: 14,
+                  height: 1.5,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+// ==================== BAGIAN KONTAK ====================
+
+class KontakWisata extends StatelessWidget {
+  const KontakWisata({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Contact Saya',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: sageDark,
+          ),
+        ),
+        const SizedBox(height: 12),
+        const Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              Icons.phone,
+              size: 20,
+              color: sageDark,
+            ),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                '085856212688',
+                style: TextStyle(fontSize: 14),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Container(
+          height: 1,
+          color: sageBorder,
+        ),
+        const SizedBox(height: 12),
+        const Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              Icons.email,
+              size: 20,
+              color: sageDark,
+            ),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'insaninkamiliaannisaa@gmail.com',
+                style: TextStyle(fontSize: 14),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
